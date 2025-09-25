@@ -1,7 +1,8 @@
+import Link from 'next/link'
 import { getRecordingSessions } from '@/lib/cosmic'
 import { formatDateTime, getStatusColor } from '@/lib/utils'
 import { RecordingSession, getStatusValue, getStatusKey } from '@/types'
-import { FaVideo, FaClock, FaUsers, FaMicrophone } from 'react-icons/fa'
+import { FaVideo, FaClock, FaUsers, FaMicrophone, FaPlay } from 'react-icons/fa'
 
 export default async function SessionList() {
   const sessions = await getRecordingSessions()
@@ -151,7 +152,13 @@ export default async function SessionList() {
             <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
               {statusKey === 'scheduled' && (
                 <>
-                  <button className="btn-primary">Start Recording</button>
+                  <Link
+                    href={`/sessions/${session.id}/record`}
+                    className="btn-primary flex items-center gap-2"
+                  >
+                    <FaPlay className="w-4 h-4" />
+                    Start Recording
+                  </Link>
                   <button className="btn-secondary">Edit Session</button>
                 </>
               )}
@@ -165,7 +172,13 @@ export default async function SessionList() {
               
               {statusKey === 'live' && (
                 <>
-                  <button className="btn-danger">End Recording</button>
+                  <Link
+                    href={`/sessions/${session.id}/record`}
+                    className="btn-primary flex items-center gap-2"
+                  >
+                    <FaPlay className="w-4 h-4" />
+                    Join Recording
+                  </Link>
                   <div className="flex items-center gap-2 text-sm text-red-600">
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                     Recording in progress
