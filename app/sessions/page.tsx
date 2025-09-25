@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import SessionList from '@/components/SessionList'
 import LoadingSpinner from '@/components/LoadingSpinner'
-import { FaPlus } from 'react-icons/fa'
+import NewSessionButton from '@/components/NewSessionButton'
 
 export default function SessionsPage() {
   return (
@@ -14,10 +14,7 @@ export default function SessionsPage() {
           </p>
         </div>
         
-        <button className="btn-primary flex items-center gap-2">
-          <FaPlus className="w-4 h-4" />
-          Schedule Session
-        </button>
+        <NewSessionButton />
       </div>
 
       <Suspense fallback={<LoadingSpinner />}>

@@ -3,6 +3,7 @@ import { getEpisodes } from '@/lib/cosmic'
 import { formatDate, getStatusColor, stripHtml, truncateText } from '@/lib/utils'
 import { Episode, getStatusValue, getStatusKey } from '@/types'
 import { FaPlay, FaClock, FaUsers } from 'react-icons/fa'
+import NewEpisodeButton from './NewEpisodeButton'
 
 export default async function EpisodeList() {
   const episodes = await getEpisodes()
@@ -15,7 +16,7 @@ export default async function EpisodeList() {
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">No episodes found</h3>
         <p className="text-gray-500 mb-4">Get started by creating your first podcast episode.</p>
-        <button className="btn-primary">Create Episode</button>
+        <NewEpisodeButton />
       </div>
     )
   }

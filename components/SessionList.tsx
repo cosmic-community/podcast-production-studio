@@ -3,6 +3,7 @@ import { getRecordingSessions } from '@/lib/cosmic'
 import { formatDateTime, getStatusColor } from '@/lib/utils'
 import { RecordingSession, getStatusValue, getStatusKey } from '@/types'
 import { FaVideo, FaClock, FaUsers, FaMicrophone, FaPlay } from 'react-icons/fa'
+import NewSessionButton from './NewSessionButton'
 
 export default async function SessionList() {
   const sessions = await getRecordingSessions()
@@ -15,7 +16,7 @@ export default async function SessionList() {
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">No recording sessions found</h3>
         <p className="text-gray-500 mb-4">Schedule your first collaborative recording session.</p>
-        <button className="btn-primary">Schedule Session</button>
+        <NewSessionButton />
       </div>
     )
   }

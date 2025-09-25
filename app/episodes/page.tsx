@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import EpisodeList from '@/components/EpisodeList'
 import LoadingSpinner from '@/components/LoadingSpinner'
-import { FaPlus } from 'react-icons/fa'
+import NewEpisodeButton from '@/components/NewEpisodeButton'
 
 export default function EpisodesPage() {
   return (
@@ -14,10 +14,7 @@ export default function EpisodesPage() {
           </p>
         </div>
         
-        <button className="btn-primary flex items-center gap-2">
-          <FaPlus className="w-4 h-4" />
-          New Episode
-        </button>
+        <NewEpisodeButton />
       </div>
 
       <Suspense fallback={<LoadingSpinner />}>
