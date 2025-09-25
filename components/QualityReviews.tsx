@@ -1,6 +1,6 @@
 import { getQualityChecks } from '@/lib/cosmic'
 import { formatDate, getStatusColor } from '@/lib/utils'
-import { QualityCheck } from '@/types'
+import { QualityCheck, getStatusValue, getStatusKey } from '@/types'
 import { FaCheckCircle, FaExclamationCircle, FaClock } from 'react-icons/fa'
 
 export default async function QualityReviews() {
@@ -40,8 +40,8 @@ export default async function QualityReviews() {
       
       <div className="space-y-4">
         {recentChecks.map((check) => {
-          const status = check.metadata?.approval_status?.key || 'pending'
-          const statusValue = check.metadata?.approval_status?.value || check.metadata?.approval_status?.key || 'Pending'
+          const statusValue = getStatusValue(check.metadata?.approval_status, 'pending')
+          const statusKey = getStatusKey(check.metadata?.approval_status, 'pending')
           const episode = check.metadata?.episode
           const reviewDate = check.metadata?.review_date
           const reviewer = check.metadata?.reviewed_by
@@ -49,7 +49,7 @@ export default async function QualityReviews() {
           return (
             <div key={check.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
               <div className="flex-shrink-0 pt-1">
-                {getStatusIcon(status)}
+                {getStatusIcon(statusKey)}
               </div>
               
               <div className="flex-1 min-w-0">
@@ -57,7 +57,7 @@ export default async function QualityReviews() {
                   <h3 className="text-sm font-medium text-gray-900 truncate">
                     {check.title}
                   </h3>
-                  <span className={`status-badge ${getStatusColor(status)}`}>
+                  <span className={`status-badge ${getStatusColor(statusKey)}`}>
                     {statusValue}
                   </span>
                 </div>

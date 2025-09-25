@@ -1,6 +1,6 @@
 import { getRecordingSessions } from '@/lib/cosmic'
 import { formatDateTime, getStatusColor } from '@/lib/utils'
-import { RecordingSession } from '@/types'
+import { RecordingSession, getStatusValue, getStatusKey } from '@/types'
 import { FaUsers, FaClock } from 'react-icons/fa'
 
 export default async function RecentSessions() {
@@ -27,7 +27,8 @@ export default async function RecentSessions() {
       
       <div className="space-y-4">
         {recentSessions.map((session) => {
-          const status = session.metadata?.status?.value || session.metadata?.status?.key || 'scheduled'
+          const status = getStatusValue(session.metadata?.status, 'scheduled')
+          const statusKey = getStatusKey(session.metadata?.status, 'scheduled')
           const participants = session.metadata?.participants || []
           const episode = session.metadata?.episode
           const sessionDate = session.metadata?.session_date
@@ -37,11 +38,8 @@ export default async function RecentSessions() {
             <div key={session.id} className="border-l-4 border-primary-200 pl-4 py-2">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium text-gray-900">{session.title}</h3>
-                <span className={`status-badge ${getStatusColor(status)}`}>
-                  {typeof session.metadata?.status === 'object' 
-                    ? session.metadata.status.value 
-                    : status
-                  }
+                <span className={`status-badge ${getStatusColor(statusKey)}`}>
+                  {status}
                 </span>
               </div>
               

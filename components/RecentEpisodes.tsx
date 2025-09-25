@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getEpisodes } from '@/lib/cosmic'
 import { formatDate, getStatusColor, stripHtml, truncateText } from '@/lib/utils'
-import { Episode } from '@/types'
+import { Episode, getStatusValue, getStatusKey } from '@/types'
 import { FaArrowRight } from 'react-icons/fa'
 
 export default async function RecentEpisodes() {
@@ -28,7 +28,8 @@ export default async function RecentEpisodes() {
       
       <div className="space-y-4">
         {recentEpisodes.map((episode) => {
-          const status = episode.metadata?.status?.value || episode.metadata?.status?.key || 'draft'
+          const status = getStatusValue(episode.metadata?.status, 'draft')
+          const statusKey = getStatusKey(episode.metadata?.status, 'draft')
           const description = stripHtml(episode.metadata?.description || '')
           const episodeNumber = episode.metadata?.episode_number
           const podcastSeries = episode.metadata?.podcast_series
@@ -52,11 +53,8 @@ export default async function RecentEpisodes() {
                       #{episodeNumber}
                     </span>
                   )}
-                  <span className={`status-badge ${getStatusColor(status)}`}>
-                    {typeof episode.metadata?.status === 'object' 
-                      ? episode.metadata.status.value 
-                      : status
-                    }
+                  <span className={`status-badge ${getStatusColor(statusKey)}`}>
+                    {status}
                   </span>
                 </div>
                 

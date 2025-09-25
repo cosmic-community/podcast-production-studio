@@ -1,6 +1,6 @@
 import { getRecordingSessions } from '@/lib/cosmic'
 import { formatDateTime, getStatusColor } from '@/lib/utils'
-import { RecordingSession } from '@/types'
+import { RecordingSession, getStatusValue, getStatusKey } from '@/types'
 import { FaVideo, FaClock, FaUsers, FaMicrophone } from 'react-icons/fa'
 
 export default async function SessionList() {
@@ -27,7 +27,8 @@ export default async function SessionList() {
           metadata
         } = session
 
-        const status = metadata?.status?.value || metadata?.status?.key || 'scheduled'
+        const status = getStatusValue(metadata?.status, 'scheduled')
+        const statusKey = getStatusKey(metadata?.status, 'scheduled')
         const episode = metadata?.episode
         const sessionDate = metadata?.session_date
         const duration = metadata?.duration
@@ -36,6 +37,8 @@ export default async function SessionList() {
         const sessionNotes = metadata?.session_notes
         const technicalIssues = metadata?.technical_issues
 
+        const qualityValue = getStatusValue(recordingQuality, 'standard')
+
         return (
           <div key={session.id} className="card p-6 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-4">
@@ -43,11 +46,8 @@ export default async function SessionList() {
                 <div className="flex items-center gap-3 mb-2">
                   <FaVideo className="w-5 h-5 text-primary-600" />
                   <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
-                  <span className={`status-badge ${getStatusColor(status)}`}>
-                    {typeof metadata?.status === 'object' 
-                      ? metadata.status.value 
-                      : status
-                    }
+                  <span className={`status-badge ${getStatusColor(statusKey)}`}>
+                    {status}
                   </span>
                 </div>
 
@@ -79,10 +79,10 @@ export default async function SessionList() {
                     </div>
                   )}
                   
-                  {recordingQuality?.value && (
+                  {recordingQuality && (
                     <div className="flex items-center gap-1">
                       <FaMicrophone className="w-4 h-4" />
-                      {recordingQuality.value}
+                      {qualityValue}
                     </div>
                   )}
                 </div>
@@ -115,9 +115,9 @@ export default async function SessionList() {
                       <span className="text-sm font-medium text-gray-900">
                         {participant.title}
                       </span>
-                      {participant.metadata?.role?.value && (
+                      {participant.metadata?.role && (
                         <span className="text-xs text-gray-500">
-                          ({participant.metadata.role.value})
+                          ({getStatusValue(participant.metadata.role, 'guest')})
                         </span>
                       )}
                     </div>
@@ -149,21 +149,21 @@ export default async function SessionList() {
 
             {/* Actions */}
             <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
-              {status === 'scheduled' && (
+              {statusKey === 'scheduled' && (
                 <>
                   <button className="btn-primary">Start Recording</button>
                   <button className="btn-secondary">Edit Session</button>
                 </>
               )}
               
-              {status === 'completed' && (
+              {statusKey === 'completed' && (
                 <>
                   <button className="btn-primary">View Recording</button>
                   <button className="btn-secondary">Edit Session</button>
                 </>
               )}
               
-              {status === 'live' && (
+              {statusKey === 'live' && (
                 <>
                   <button className="btn-danger">End Recording</button>
                   <div className="flex items-center gap-2 text-sm text-red-600">

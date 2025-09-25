@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { formatDate, getStatusColor, getRoleColor, parseHtmlContent } from '@/lib/utils'
-import { Episode } from '@/types'
+import { Episode, getStatusValue, getStatusKey } from '@/types'
 import { FaArrowLeft, FaPlay, FaClock, FaCalendar, FaUsers, FaTag } from 'react-icons/fa'
 
 interface EpisodeDetailsProps {
@@ -13,7 +13,8 @@ export default function EpisodeDetails({ episode }: EpisodeDetailsProps) {
     metadata
   } = episode
 
-  const status = metadata?.status?.value || metadata?.status?.key || 'draft'
+  const status = getStatusValue(metadata?.status, 'draft')
+  const statusKey = getStatusKey(metadata?.status, 'draft')
   const episodeNumber = metadata?.episode_number
   const podcastSeries = metadata?.podcast_series
   const description = metadata?.description
@@ -63,11 +64,8 @@ export default function EpisodeDetails({ episode }: EpisodeDetailsProps) {
                   Episode #{episodeNumber}
                 </span>
               )}
-              <span className={`status-badge ${getStatusColor(status)}`}>
-                {typeof metadata?.status === 'object' 
-                  ? metadata.status.value 
-                  : status
-                }
+              <span className={`status-badge ${getStatusColor(statusKey)}`}>
+                {status}
               </span>
             </div>
 
@@ -170,9 +168,9 @@ export default function EpisodeDetails({ episode }: EpisodeDetailsProps) {
                     )}
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{participant.title}</p>
-                      {participant.metadata?.role?.value && (
-                        <span className={`inline-block mt-1 status-badge ${getRoleColor(participant.metadata.role.key)}`}>
-                          {participant.metadata.role.value}
+                      {participant.metadata?.role && (
+                        <span className={`inline-block mt-1 status-badge ${getRoleColor(getStatusKey(participant.metadata.role, 'guest'))}`}>
+                          {getStatusValue(participant.metadata.role, 'guest')}
                         </span>
                       )}
                     </div>
@@ -208,11 +206,8 @@ export default function EpisodeDetails({ episode }: EpisodeDetailsProps) {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">Status:</span>
-                <span className={`status-badge ${getStatusColor(status)}`}>
-                  {typeof metadata?.status === 'object' 
-                    ? metadata.status.value 
-                    : status
-                  }
+                <span className={`status-badge ${getStatusColor(statusKey)}`}>
+                  {status}
                 </span>
               </div>
               

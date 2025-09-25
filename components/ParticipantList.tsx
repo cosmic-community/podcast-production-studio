@@ -1,6 +1,6 @@
 import { getParticipants } from '@/lib/cosmic'
 import { getRoleColor } from '@/lib/utils'
-import { Participant } from '@/types'
+import { Participant, getStatusValue, getStatusKey } from '@/types'
 import { FaUsers, FaEnvelope, FaExternalLinkAlt } from 'react-icons/fa'
 
 export default async function ParticipantList() {
@@ -32,6 +32,9 @@ export default async function ParticipantList() {
           is_active
         } = participant.metadata
 
+        const roleValue = getStatusValue(role, 'guest')
+        const roleKey = getStatusKey(role, 'guest')
+
         return (
           <div key={participant.id} className="card p-6 hover:shadow-md transition-shadow">
             {/* Avatar and Basic Info */}
@@ -52,9 +55,9 @@ export default async function ParticipantList() {
                 )}
                 <div>
                   <h3 className="font-semibold text-gray-900">{name || participant.title}</h3>
-                  {role?.value && (
-                    <span className={`status-badge ${getRoleColor(role.key || role.value)}`}>
-                      {role.value}
+                  {role && (
+                    <span className={`status-badge ${getRoleColor(roleKey)}`}>
+                      {roleValue}
                     </span>
                   )}
                 </div>

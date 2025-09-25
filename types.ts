@@ -11,6 +11,12 @@ export interface CosmicObject {
   status: string;
 }
 
+// Status/Role field union types to handle both string and object formats
+export type StatusField<T extends string = string> = T | {
+  key: string;
+  value: string;
+};
+
 // Podcast Series
 export interface PodcastSeries extends CosmicObject {
   type: 'podcast-series';
@@ -22,14 +28,8 @@ export interface PodcastSeries extends CosmicObject {
       imgix_url: string;
     };
     host?: Participant;
-    category?: {
-      key: string;
-      value: string;
-    };
-    language?: {
-      key: string;
-      value: string;
-    };
+    category?: StatusField;
+    language?: StatusField;
     is_active: boolean;
     rss_feed_settings?: {
       explicit: boolean;
@@ -60,7 +60,7 @@ export interface Episode extends CosmicObject {
     };
     duration?: string;
     publish_date?: string;
-    status?: EpisodeStatus;
+    status?: StatusField<EpisodeStatus>;
     transcript?: string;
     participants?: Participant[];
     tags?: string[];
@@ -78,7 +78,7 @@ export interface Participant extends CosmicObject {
       url: string;
       imgix_url: string;
     };
-    role?: ParticipantRole;
+    role?: StatusField<ParticipantRole>;
     social_links?: {
       twitter?: string;
       linkedin?: string;
@@ -100,9 +100,9 @@ export interface RecordingSession extends CosmicObject {
     episode?: Episode;
     session_date: string;
     duration?: number;
-    status?: SessionStatus;
+    status?: StatusField<SessionStatus>;
     participants?: Participant[];
-    recording_quality?: RecordingQuality;
+    recording_quality?: StatusField<RecordingQuality>;
     session_notes?: string;
     technical_issues?: string;
     backup_recordings?: any[];
@@ -120,7 +120,7 @@ export interface AudioClip extends CosmicObject {
     };
     start_time: number;
     end_time: number;
-    clip_type?: ClipType;
+    clip_type?: StatusField<ClipType>;
     notes?: string;
     is_included: boolean;
     order_position?: number;
@@ -135,7 +135,7 @@ export interface QualityCheck extends CosmicObject {
     episode?: Episode;
     audio_quality_check?: string[];
     content_review?: string[];
-    approval_status?: ApprovalStatus;
+    approval_status?: StatusField<ApprovalStatus>;
     reviewer_notes?: string;
     reviewed_by?: Participant;
     review_date?: string;
@@ -152,7 +152,7 @@ export interface SponsorSegment extends CosmicObject {
     audio_spot?: {
       url: string;
     };
-    placement?: SponsorPlacement;
+    placement?: StatusField<SponsorPlacement>;
     campaign_start_date: string;
     campaign_end_date: string;
     target_episodes?: Episode[];
@@ -180,3 +180,17 @@ export interface CosmicResponse<T> {
 // Utility types
 export type CreateEpisodeData = Omit<Episode, 'id' | 'created_at' | 'modified_at' | 'status'>;
 export type CreateRecordingSessionData = Omit<RecordingSession, 'id' | 'created_at' | 'modified_at' | 'status'>;
+
+// Helper function to extract value from StatusField
+export function getStatusValue<T extends string>(statusField: StatusField<T> | undefined, fallback: T): T {
+  if (!statusField) return fallback;
+  if (typeof statusField === 'string') return statusField as T;
+  return (statusField.value || statusField.key || fallback) as T;
+}
+
+// Helper function to extract key from StatusField
+export function getStatusKey<T extends string>(statusField: StatusField<T> | undefined, fallback: string): string {
+  if (!statusField) return fallback;
+  if (typeof statusField === 'string') return statusField;
+  return statusField.key || statusField.value || fallback;
+}
