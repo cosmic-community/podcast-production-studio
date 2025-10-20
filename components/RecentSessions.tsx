@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getRecordingSessions } from '@/lib/cosmic'
 import { FaMicrophone, FaClock, FaUsers, FaArrowRight } from 'react-icons/fa'
-import { getStatusValue } from '@/types'
+import { getStatusValue, RecordingSession } from '@/types'
 
 export default async function RecentSessions() {
   const allSessions = await getRecordingSessions()
@@ -59,7 +59,7 @@ export default async function RecentSessions() {
         </div>
       </div>
       <div className="divide-y divide-gray-200">
-        {recentSessions.map((session) => {
+        {recentSessions.map((session: RecordingSession) => {
           const status = getStatusValue(session.metadata?.status, 'scheduled')
           const sessionDate = session.metadata?.session_date
           const participants = session.metadata?.participants || []

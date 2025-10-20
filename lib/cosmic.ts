@@ -1,4 +1,5 @@
 import { createBucketClient } from '@cosmicjs/sdk'
+import { RecordingSession } from '@/types'
 
 export const cosmic = createBucketClient({
   bucketSlug: process.env.COSMIC_BUCKET_SLUG as string,
@@ -82,7 +83,7 @@ export async function getParticipants() {
 }
 
 // Get recording sessions
-export async function getRecordingSessions() {
+export async function getRecordingSessions(): Promise<RecordingSession[]> {
   try {
     const response = await cosmic.objects
       .find({ type: 'recording-sessions' })
@@ -90,7 +91,7 @@ export async function getRecordingSessions() {
       .depth(1);
     
     // Manual sorting by session date (descending)
-    return response.objects.sort((a: any, b: any) => {
+    return (response.objects as RecordingSession[]).sort((a, b) => {
       const dateA = new Date(a.metadata?.session_date || '').getTime();
       const dateB = new Date(b.metadata?.session_date || '').getTime();
       return dateB - dateA;
