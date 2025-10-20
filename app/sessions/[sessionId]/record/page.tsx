@@ -1,3 +1,4 @@
+// app/sessions/[sessionId]/record/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -5,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation'
 import RecordingInterface from '@/components/RecordingInterface'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import { RecordingSession } from '@/types'
-import { FaArrowLeft, FaVideo, FaUsers, FaClock } from 'react-icons/fa'
+import { FaArrowLeft, FaVideo, FaUsers, FaClock, FaCheckCircle } from 'react-icons/fa'
 
 export default function RecordingPage() {
   const params = useParams()
@@ -15,6 +16,7 @@ export default function RecordingPage() {
   const [session, setSession] = useState<RecordingSession | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [recordingComplete, setRecordingComplete] = useState(false)
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -51,17 +53,30 @@ export default function RecordingPage() {
       // Handle recording completion
       if (data.type === 'recording_complete' && data.audioBlob) {
         const formData = new FormData()
-        formData.append('audio', data.audioBlob, 'recording.webm')
+        formData.append('audio', data.audioBlob, `recording-${Date.now()}.webm`)
         formData.append('sessionId', sessionId)
-        formData.append('duration', data.duration.toString())
+        formData.append('duration', (data.duration || 0).toString())
+        formData.append('mimeType', data.mimeType || 'audio/webm')
 
-        await fetch('/api/recordings/upload', {
+        const uploadResponse = await fetch('/api/recordings/upload', {
           method: 'POST',
           body: formData
         })
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload recording')
+        }
+
+        setRecordingComplete(true)
+        
+        // Show success message and redirect after a delay
+        setTimeout(() => {
+          router.push('/sessions')
+        }, 3000)
       }
     } catch (error) {
       console.error('Failed to update recording status:', error)
+      alert('Failed to save recording. Please try again.')
     }
   }
 
@@ -84,6 +99,25 @@ export default function RecordingPage() {
           >
             Go Back
           </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (recordingComplete) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="card p-8 text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FaCheckCircle className="w-8 h-8 text-green-600" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Recording Saved Successfully!</h2>
+          <p className="text-gray-600 mb-4">
+            Your recording has been uploaded to Cosmic CMS and attached to this session.
+          </p>
+          <p className="text-sm text-gray-500">
+            Redirecting to sessions page...
+          </p>
         </div>
       </div>
     )
