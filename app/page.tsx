@@ -8,8 +8,8 @@ export const revalidate = 60
 
 export default async function Home() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
+    <div className="space-y-8">
+      <div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Welcome to Podcast Production Studio
         </h1>
@@ -19,7 +19,7 @@ export default async function Home() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Link
           href="/sessions"
           className="card p-6 hover:shadow-lg transition-shadow bg-gradient-to-br from-red-50 to-pink-50 border-red-200"
@@ -53,7 +53,7 @@ export default async function Home() {
 
       <DashboardStats />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <RecentEpisodes />
         <RecentSessions />
       </div>

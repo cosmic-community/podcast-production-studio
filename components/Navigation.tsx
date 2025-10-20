@@ -18,14 +18,15 @@ export default function Navigation() {
   ]
 
   return (
-    <nav className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
+        <div className="flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white">
+          <div className="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
+            <div className="flex flex-shrink-0 items-center px-4 mb-5">
               <h1 className="text-xl font-bold text-gray-900">🎙️ Podcast Studio</h1>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <nav className="mt-5 flex-1 space-y-1 px-2">
               {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = pathname === item.href
@@ -33,47 +34,54 @@ export default function Navigation() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`inline-flex items-center gap-2 px-1 pt-1 border-b-2 text-sm font-medium ${
+                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
                       isActive
-                        ? 'border-blue-500 text-gray-900'
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                        ? 'bg-primary-50 text-primary-700'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className={`mr-3 h-5 w-5 flex-shrink-0 ${
+                      isActive ? 'text-primary-700' : 'text-gray-400 group-hover:text-gray-500'
+                    }`} />
                     {item.label}
                   </Link>
                 )
               })}
-            </div>
+            </nav>
           </div>
         </div>
-      </div>
-      
-      {/* Mobile menu */}
-      <div className="sm:hidden">
-        <div className="pt-2 pb-3 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                  isActive
-                    ? 'bg-blue-50 border-blue-500 text-blue-700'
-                    : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'
-                }`}
-              >
-                <div className="flex items-center gap-2">
+      </aside>
+
+      {/* Mobile Header */}
+      <div className="lg:hidden">
+        <div className="flex items-center justify-between bg-white border-b border-gray-200 px-4 py-3">
+          <h1 className="text-lg font-bold text-gray-900">🎙️ Podcast Studio</h1>
+        </div>
+        
+        {/* Mobile Navigation */}
+        <nav className="bg-white border-b border-gray-200 overflow-x-auto">
+          <div className="flex space-x-4 px-4 py-2">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap ${
+                    isActive
+                      ? 'bg-primary-50 text-primary-700'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
                   <Icon className="w-4 h-4" />
                   {item.label}
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+                </Link>
+              )
+            })}
+          </div>
+        </nav>
       </div>
-    </nav>
+    </>
   )
 }
