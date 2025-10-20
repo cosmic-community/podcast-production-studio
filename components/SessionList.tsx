@@ -1,191 +1,127 @@
+'use client'
+
 import Link from 'next/link'
-import { getRecordingSessions } from '@/lib/cosmic'
-import { formatDateTime, getStatusColor } from '@/lib/utils'
-import { RecordingSession, getStatusValue, getStatusKey } from '@/types'
-import { FaVideo, FaClock, FaUsers, FaMicrophone, FaPlay } from 'react-icons/fa'
-import NewSessionButton from './NewSessionButton'
+import { RecordingSession, getStatusValue } from '@/types'
+import { FaClock, FaUsers, FaMicrophone, FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 
-export default async function SessionList() {
-  const sessions = await getRecordingSessions()
+interface SessionListProps {
+  sessions: RecordingSession[]
+}
 
-  if (sessions.length === 0) {
+export default function SessionList({ sessions }: SessionListProps) {
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'scheduled':
+        return 'bg-blue-100 text-blue-800'
+      case 'live':
+        return 'bg-red-100 text-red-800'
+      case 'completed':
+        return 'bg-green-100 text-green-800'
+      case 'cancelled':
+        return 'bg-gray-100 text-gray-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'scheduled':
+        return <FaClock className="w-4 h-4" />
+      case 'live':
+        return <FaMicrophone className="w-4 h-4 animate-pulse" />
+      case 'completed':
+        return <FaCheckCircle className="w-4 h-4" />
+      case 'cancelled':
+        return <FaTimesCircle className="w-4 h-4" />
+      default:
+        return <FaClock className="w-4 h-4" />
+    }
+  }
+
+  if (!sessions || sessions.length === 0) {
     return (
       <div className="card p-8 text-center">
         <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <FaVideo className="w-8 h-8 text-gray-400" />
+          <FaMicrophone className="w-8 h-8 text-gray-400" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No recording sessions found</h3>
-        <p className="text-gray-500 mb-4">Schedule your first collaborative recording session.</p>
-        <NewSessionButton />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No Recording Sessions</h3>
+        <p className="text-gray-600 mb-4">Create your first recording session to get started.</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {sessions.map((session: RecordingSession) => {
-        const {
-          title,
-          metadata
-        } = session
-
-        const status = getStatusValue(metadata?.status, 'scheduled')
-        const statusKey = getStatusKey(metadata?.status, 'scheduled')
-        const episode = metadata?.episode
-        const sessionDate = metadata?.session_date
-        const duration = metadata?.duration
-        const participants = metadata?.participants || []
-        const recordingQuality = metadata?.recording_quality
-        const sessionNotes = metadata?.session_notes
-        const technicalIssues = metadata?.technical_issues
-
-        const qualityValue = getStatusValue(recordingQuality, 'standard')
+    <div className="space-y-4">
+      {sessions.map((session) => {
+        const status = getStatusValue(session.metadata?.status, 'scheduled')
+        const sessionDate = session.metadata?.session_date
+        const participants = session.metadata?.participants || []
+        const episode = session.metadata?.episode
 
         return (
-          <div key={session.id} className="card p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <FaVideo className="w-5 h-5 text-primary-600" />
-                  <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
-                  <span className={`status-badge ${getStatusColor(statusKey)}`}>
-                    {status}
+          <div key={session.id} className="card hover:shadow-md transition-shadow">
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    {session.title}
+                  </h3>
+                  {episode?.title && (
+                    <p className="text-sm text-gray-600 mb-2">
+                      Episode: {episode.title}
+                    </p>
+                  )}
+                </div>
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(status)}`}>
+                  {getStatusIcon(status)}
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <FaClock className="w-4 h-4 text-gray-400" />
+                  <span>
+                    {sessionDate 
+                      ? new Date(sessionDate).toLocaleString()
+                      : 'Not scheduled'}
                   </span>
                 </div>
-
-                {episode?.title && (
-                  <p className="text-primary-600 mb-2">
-                    Episode: {episode.title}
-                  </p>
-                )}
-
-                {/* Session Details */}
-                <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
-                  {sessionDate && (
-                    <div className="flex items-center gap-1">
-                      <FaClock className="w-4 h-4" />
-                      {formatDateTime(sessionDate)}
-                    </div>
-                  )}
-                  
-                  {duration && (
-                    <div className="flex items-center gap-1">
-                      <span>{duration} minutes</span>
-                    </div>
-                  )}
-                  
-                  {participants.length > 0 && (
-                    <div className="flex items-center gap-1">
-                      <FaUsers className="w-4 h-4" />
-                      {participants.length} participant{participants.length !== 1 ? 's' : ''}
-                    </div>
-                  )}
-                  
-                  {recordingQuality && (
-                    <div className="flex items-center gap-1">
-                      <FaMicrophone className="w-4 h-4" />
-                      {qualityValue}
-                    </div>
-                  )}
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <FaUsers className="w-4 h-4 text-gray-400" />
+                  <span>
+                    {participants.length} participant{participants.length !== 1 ? 's' : ''}
+                  </span>
                 </div>
               </div>
-            </div>
 
-            {/* Participants */}
-            {participants.length > 0 && (
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Participants:</h4>
-                <div className="flex flex-wrap gap-2">
-                  {participants.map((participant: any, index: number) => (
-                    <div
-                      key={participant.id || index}
-                      className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2"
-                    >
-                      {participant.metadata?.avatar?.imgix_url ? (
-                        <img
-                          src={`${participant.metadata.avatar.imgix_url}?w=48&h=48&fit=crop&auto=format,compress`}
-                          alt={participant.title}
-                          width={24}
-                          height={24}
-                          className="rounded-full"
-                        />
-                      ) : (
-                        <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium text-gray-600">
-                          {(participant.title || 'U').charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                      <span className="text-sm font-medium text-gray-900">
-                        {participant.title}
-                      </span>
-                      {participant.metadata?.role && (
-                        <span className="text-xs text-gray-500">
-                          ({getStatusValue(participant.metadata.role, 'guest')})
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Session Notes */}
-            {sessionNotes && (
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Session Notes:</h4>
-                <div 
-                  className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg"
-                  dangerouslySetInnerHTML={{ __html: sessionNotes }}
-                />
-              </div>
-            )}
-
-            {/* Technical Issues */}
-            {technicalIssues && (
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-orange-700 mb-2">Technical Issues:</h4>
-                <p className="text-sm text-orange-600 bg-orange-50 p-3 rounded-lg">
-                  {technicalIssues}
-                </p>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
-              {statusKey === 'scheduled' && (
-                <>
+              <div className="flex gap-2">
+                {status === 'scheduled' && (
                   <Link
                     href={`/sessions/${session.id}/record`}
                     className="btn-primary flex items-center gap-2"
                   >
-                    <FaPlay className="w-4 h-4" />
+                    <FaMicrophone className="w-4 h-4" />
                     Start Recording
                   </Link>
-                  <button className="btn-secondary">Edit Session</button>
-                </>
-              )}
-              
-              {statusKey === 'completed' && (
-                <>
-                  <button className="btn-primary">View Recording</button>
-                  <button className="btn-secondary">Edit Session</button>
-                </>
-              )}
-              
-              {statusKey === 'live' && (
-                <>
+                )}
+                {status === 'live' && (
                   <Link
                     href={`/sessions/${session.id}/record`}
-                    className="btn-primary flex items-center gap-2"
+                    className="btn-primary flex items-center gap-2 bg-red-600 hover:bg-red-700"
                   >
-                    <FaPlay className="w-4 h-4" />
-                    Join Recording
+                    <FaMicrophone className="w-4 h-4 animate-pulse" />
+                    Continue Recording
                   </Link>
-                  <div className="flex items-center gap-2 text-sm text-red-600">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    Recording in progress
-                  </div>
-                </>
-              )}
+                )}
+                <Link
+                  href={`/sessions/${session.id}`}
+                  className="btn-secondary"
+                >
+                  View Details
+                </Link>
+              </div>
             </div>
           </div>
         )

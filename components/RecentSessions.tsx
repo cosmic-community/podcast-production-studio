@@ -1,95 +1,104 @@
+import Link from 'next/link'
 import { getRecordingSessions } from '@/lib/cosmic'
-import { formatDateTime, getStatusColor } from '@/lib/utils'
-import { RecordingSession, getStatusValue, getStatusKey } from '@/types'
-import { FaUsers, FaClock } from 'react-icons/fa'
+import { FaMicrophone, FaClock, FaUsers, FaArrowRight } from 'react-icons/fa'
+import { getStatusValue } from '@/types'
 
 export default async function RecentSessions() {
-  const sessions = await getRecordingSessions()
-  const recentSessions = sessions.slice(0, 5) as RecordingSession[]
+  const allSessions = await getRecordingSessions()
+  const recentSessions = allSessions.slice(0, 5)
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'scheduled':
+        return 'bg-blue-100 text-blue-800'
+      case 'live':
+        return 'bg-red-100 text-red-800'
+      case 'completed':
+        return 'bg-green-100 text-green-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
 
   if (recentSessions.length === 0) {
     return (
-      <div className="card p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Sessions</h2>
-        <p className="text-gray-500">No recording sessions found</p>
+      <div className="card">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+            <FaMicrophone className="w-5 h-5 text-red-600" />
+            Recent Recording Sessions
+          </h2>
+        </div>
+        <div className="p-6 text-center">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FaMicrophone className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No Recording Sessions</h3>
+          <p className="text-gray-600 mb-4">Create your first recording session to get started.</p>
+          <Link href="/sessions" className="btn-primary inline-flex items-center gap-2">
+            <FaMicrophone className="w-4 h-4" />
+            Go to Sessions
+          </Link>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="card p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">Recent Sessions</h2>
-        <button className="text-primary-600 hover:text-primary-700 text-sm font-medium">
-          View all
-        </button>
+    <div className="card">
+      <div className="p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+            <FaMicrophone className="w-5 h-5 text-red-600" />
+            Recent Recording Sessions
+          </h2>
+          <Link href="/sessions" className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
+            View all
+            <FaArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
       </div>
-      
-      <div className="space-y-4">
+      <div className="divide-y divide-gray-200">
         {recentSessions.map((session) => {
           const status = getStatusValue(session.metadata?.status, 'scheduled')
-          const statusKey = getStatusKey(session.metadata?.status, 'scheduled')
-          const participants = session.metadata?.participants || []
-          const episode = session.metadata?.episode
           const sessionDate = session.metadata?.session_date
-          const duration = session.metadata?.duration
+          const participants = session.metadata?.participants || []
 
           return (
-            <div key={session.id} className="border-l-4 border-primary-200 pl-4 py-2">
-              <div className="flex items-center justify-between mb-2">
+            <Link
+              key={session.id}
+              href={status === 'scheduled' || status === 'live' ? `/sessions/${session.id}/record` : `/sessions/${session.id}`}
+              className="block p-6 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-start justify-between mb-2">
                 <h3 className="font-medium text-gray-900">{session.title}</h3>
-                <span className={`status-badge ${getStatusColor(statusKey)}`}>
-                  {status}
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>
               </div>
-              
-              {episode?.title && (
-                <p className="text-sm text-primary-600 mb-2">
-                  Episode: {episode.title}
-                </p>
-              )}
-              
-              <div className="flex items-center gap-4 text-xs text-gray-500">
-                {sessionDate && (
-                  <div className="flex items-center gap-1">
-                    <FaClock className="w-3 h-3" />
-                    {formatDateTime(sessionDate)}
-                  </div>
-                )}
-                
-                {participants.length > 0 && (
-                  <div className="flex items-center gap-1">
-                    <FaUsers className="w-3 h-3" />
-                    {participants.length} participant{participants.length !== 1 ? 's' : ''}
-                  </div>
-                )}
-                
-                {duration && (
-                  <span>{duration} minutes</span>
-                )}
+              <div className="space-y-1 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <FaClock className="w-3 h-3 text-gray-400" />
+                  <span>
+                    {sessionDate 
+                      ? new Date(sessionDate).toLocaleDateString()
+                      : 'Not scheduled'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <FaUsers className="w-3 h-3 text-gray-400" />
+                  <span>{participants.length} participant{participants.length !== 1 ? 's' : ''}</span>
+                </div>
               </div>
-              
-              {participants.length > 0 && (
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="flex -space-x-2">
-                    {participants.slice(0, 3).map((participant: any, index: number) => (
-                      <div
-                        key={participant.id || index}
-                        className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium text-gray-600 border-2 border-white"
-                        title={participant.title || participant.metadata?.name}
-                      >
-                        {(participant.title || participant.metadata?.name || 'U').charAt(0).toUpperCase()}
-                      </div>
-                    ))}
-                    {participants.length > 3 && (
-                      <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium text-gray-600 border-2 border-white">
-                        +{participants.length - 3}
-                      </div>
-                    )}
-                  </div>
+              {(status === 'scheduled' || status === 'live') && (
+                <div className="mt-3">
+                  <span className="inline-flex items-center gap-2 text-sm text-red-600 font-medium">
+                    <FaMicrophone className={`w-4 h-4 ${status === 'live' ? 'animate-pulse' : ''}`} />
+                    {status === 'live' ? 'Continue Recording' : 'Start Recording'}
+                  </span>
                 </div>
               )}
-            </div>
+            </Link>
           )
         })}
       </div>
