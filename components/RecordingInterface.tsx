@@ -388,7 +388,8 @@ export default function RecordingInterface({ sessionId, participants, onRecordin
               ))}
             </div>
             
-            {audioLevels[0]?.level < 5 && !isRecording && (
+            {/* Changed: Added proper null check for audioLevels[0] before accessing level property */}
+            {audioLevels[0] && audioLevels[0].level < 5 && !isRecording && (
               <p className="text-sm text-yellow-700 mt-2 flex items-center gap-2">
                 <FaExclamationTriangle className="w-4 h-4" />
                 Low audio detected. Please speak or check your microphone.
